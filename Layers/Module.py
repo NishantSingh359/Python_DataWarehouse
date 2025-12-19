@@ -66,7 +66,7 @@ def value_cleaning_d(value):
     # replace punctuation characters
     step1 = value.replace(",","").replace(";","").replace(":","").replace("?","").replace("!","").replace("'","").replace("`","").replace("…","").replace("—","")
     # Mathematical Symbols
-    step2 = step1.replace("=", "").replace("+","").replace("<","").replace(">","").replace("%","").replace("∞","").replace("*","").replace("/","").replace("|","")
+    step2 = step1.replace("=", "").replace("+","").replace("-","").replace("<","").replace(">","").replace("%","").replace("∞","").replace("*","").replace("/","").replace("|","")
     # Brackets & Currency Symbols
     step3 = step2.replace("{", "").replace("}","").replace("[","").replace("]","").replace("(","").replace(")","").replace("$","").replace("₹","")
     # Miscellaneous Symbols

@@ -9,24 +9,31 @@ import os
 import pandas as pd
 
 import importlib
-import Module as m
+import module as m
 importlib.reload(m) 
 
-# -----------------------------------------
-# ========================== ETL CRM TABLES
-# -----------------------------------------
+
 
 if __name__ == "__main__":
     
     print('=============================================')
     print('================ SILVER LAYER ===============')
     print('=============================================')
+    print()
 
-    print('---------------------------------------------')
+    silver_time1 = datetime.datetime.now()
+
+    print('=============================================')
     print('================= CRM TABLES ================')
-    print('---------------------------------------------')
+    print('=============================================')
+    print('=====')
 
-    # ============ restaurants.csv.gz
+    crm_time1 = datetime.datetime.now()
+    
+    # ---------------------------------------------------
+    # ---------------- restaurants.csv.gz ---------------
+    # ---------------------------------------------------
+
     time1 = datetime.datetime.now()
 
     print("===================== LOADING restaurants.csv")
@@ -48,11 +55,14 @@ if __name__ == "__main__":
 
     time2 = datetime.datetime.now()
     time = time2 - time1
-    print("TABLE LOADING TIME")
+    print("TABLE CLEANING TIME")
     print(time)
 
 
-    # ============ delivery_partners.csv.gz
+    # ---------------------------------------------------
+    # ------------- delivery_partners.csv.gz ------------
+    # ---------------------------------------------------
+
     time1 = datetime.datetime.now()
 
     print("=============== LOADING delivery_partners.csv")
@@ -73,11 +83,14 @@ if __name__ == "__main__":
 
     time2 = datetime.datetime.now()
     time = time2 - time1
-    print("TABLE LOADING TIME")
+    print("TABLE CLEANING TIME")
     print(time)
 
 
-    # ============ customers.csv.gz
+    # ---------------------------------------------------
+    # ----------------- customers.csv.gz ----------------
+    # ---------------------------------------------------
+
     time1 = datetime.datetime.now()
 
     print("======================== LOADING customer.csv")
@@ -100,11 +113,14 @@ if __name__ == "__main__":
 
     time2 = datetime.datetime.now()
     time = time2 - time1
-    print("TABLE LOADING TIME")
+    print("TABLE CLEANING TIME")
     print(time)
 
 
-    # ============ order.csv.gz
+    # ---------------------------------------------------
+    # ------------------- orders.csv.gz -----------------
+    # ---------------------------------------------------
+
     time1 = datetime.datetime.now()
 
     print("========================== LOADING orders.csv")
@@ -157,11 +173,14 @@ if __name__ == "__main__":
 
     time2 = datetime.datetime.now()
     time = time2 - time1
-    print("TABLE LOADING TIME")
+    print("TABLE CLEANING TIME")
     print(time)
 
 
-    # ============ menu_items.csv.gz
+    # ---------------------------------------------------
+    # ---------------- menu_items.csv.gz ----------------
+    # ---------------------------------------------------
+
     time1 = datetime.datetime.now()
 
     print("====================== LOADING menu_items.csv")
@@ -192,11 +211,14 @@ if __name__ == "__main__":
 
     time2 = datetime.datetime.now()
     time = time2 - time1
-    print("TABLE LOADING TIME")
+    print("TABLE CLEANING TIME")
     print(time)
 
 
-    # ============ order_items.csv.gz
+    # ---------------------------------------------------
+    # ---------------- order_items.csv.gz ---------------
+    # ---------------------------------------------------
+
     time1 = datetime.datetime.now()
 
     print("===================== LOADING order_items.csv")
@@ -240,27 +262,258 @@ if __name__ == "__main__":
 
     time2 = datetime.datetime.now()
     time = time2 - time1
-    print("TABLE LOADING TIME")
+    print("TABLE CLEANING TIME")
+    print(time)
+    print()
+    # CRM tables CLEANING TIME
+    crm_time2 = datetime.datetime.now()
+    crm_time = crm_time2 - crm_time1
+    print("CRM TABLES CLEANING TIME")
+    print(crm_time)   
+    print()
+
+
+    print('=============================================')
+    print('================= ERP TABLES ================')
+    print('=============================================')
+    print('=====')
+
+    erp_time1 = datetime.datetime.now()
+
+    # ---------------------------------------------------
+    # ----------------- suppliers.csv.gz ----------------
+    # ---------------------------------------------------
+
+    time1 = datetime.datetime.now()
+
+    print("======================= LOADING suppliers.csv")
+    path = os.path.join("Dataset","ERP", "suppliers.csv.gz")
+    suplir = pd.read_csv(path)
+
+    print("================= CREATING DATAFRAME supplier")
+    supplier = pd.DataFrame()
+
+    print("======================= CLEANING supplier.csv")
+    # supplier_id
+    supp_id = suplir['supplier_id'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    supplier['supplier_id'] = [i if len(i) == 5 else None for i in supp_id]
+    # supplier_name
+    supp_name = suplir['supplier_name'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    supplier['supplier_name'] = [None if i in ('nan','na','n') else i for i in supp_name]
+    # phone
+    phone = suplir['phone'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    supplier['phone'] = [i[2::] if len(i) == 12 else i[1::] if len(i) == 11 else None if i in ('nan','na','n') else i for i in phone]
+    # city
+    city = suplir['city'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    supplier['city'] = [ None if i in ('nan','na','n') else i for i in city]
+
+    suplr = supplier.dropna( subset= 'supplier_id').drop_duplicates(subset= 'supplier_id').sort_values(by = 'supplier_id').reset_index().drop('index', axis = 1)
+    suplr.to_pickle(r"Layers/Silver/ERP/order_item.pkl")
+
+    time2 = datetime.datetime.now()
+    time = time2 - time1
+    print("TABLE CLEANING TIME")
     print(time)
 
 
+    # ---------------------------------------------------
+    # --------------- supplier_items.csv.gz -------------
+    # ---------------------------------------------------
+
+    time1 = datetime.datetime.now()
+    
+    print("================= LOADING suppliers_items.csv")
+    path = os.path.join("Dataset","ERP", "supplier_items.csv.gz")
+    sup_itm = pd.read_csv(path)
+
+    print("============ CREATING DATAFRAME supplier_item")
+    supplier_item = pd.DataFrame()
+
+    print("================= CLEANING supplier_items.csv")
+    # item_id
+    item_id = sup_itm['item_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning(x))))
+    supplier_item['item_id'] = ['M0'+i[1::] if len(i) == 4 else  None if i in ('nan','na','n') else i for i in item_id]
+    # supplier_id
+    supplier_id = sup_itm['supplier_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning(x))))
+    supplier_id1 = [ 'S0'+i[1::] if len(i) == 4 else None if i in ('nan','na','n') else i for i in supplier_id]
+    order_item = pd.read_pickle("./Layers/Silver/ERP/order_item.pkl")
+    supplier_id2 = set(order_item['supplier_id'])
+    supplier_item['supplier_id'] = [i if i in supplier_id2 else None for i in supplier_id1]
+
+    suplr_itm = supplier_item.dropna(subset = 'item_id').drop_duplicates(subset = 'item_id').sort_values(by = 'item_id').reset_index().drop('index', axis = 1)
+    suplr_itm.to_pickle(r"Layers/Silver/ERP/supplier_item.pkl")
+
+    time2 = datetime.datetime.now()
+    time = time2 - time1
+    print("TABLE CLEANING TIME")
+    print(time)
 
 
+    # ---------------------------------------------------
+    # ----------------- inventory.csv.gz ----------------
+    # ---------------------------------------------------
+
+    time1 = datetime.datetime.now()
+    
+    print("======================= LOADING inventory.csv")
+    path = os.path.join("Dataset","ERP", "inventory.csv.gz")
+    inty = pd.read_csv(path)
+
+    print("================ CREATING DATAFRAME inventory")
+    inventory = pd.DataFrame()
+
+    print("====================== CLEANING inventory.csv")
+    # restaurant_id
+    rest_id = inty['restaurant_id'].astype('str').apply(lambda x: m.fix_ids(m.letter_cleaning(m.word_cleaning(m.value_cleaning(x)))))
+    rest = pd.read_pickle("./Layers/Silver/CRM/restaurant.pkl")
+    rest_id1 = set(rest['restaurant_id'])
+    inventory['restaurant_id'] = [ i if i in rest_id1 else None for i in rest_id]
+    # item_id
+    itm_id = inty['item_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning(x))))
+    itm_id2 = ['M0'+i[1::] if len(i) == 4 else i if len(i) == 5 else None for i in itm_id]
+    sup_itm = pd.read_pickle("./Layers/Silver/ERP/supplier_item.pkl")
+    itm_id3 = set(sup_itm['item_id'])
+    inventory['item_id'] = [ i if i in itm_id3 else None for i in itm_id2]
+    # stock_qty
+    sto_qty = inty['stock_qty'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    inventory['stock_qty'] = [ None if i in ('nan','na','999','999999') else i for i in sto_qty]
+    # reorder_lavel
+    reor_lavel = inty['reorder_level'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    reor_lavel['reorder_level'] = [None if i in ('nan','na','n') else i for i in reor_lavel]
+
+    inventory.to_pickle(r"Layers/Silver/ERP/inventory.pkl")
+
+    time2 = datetime.datetime.now()
+    time = time2 - time1
+    print("TABLE CLEANING TIME")
+    print(time)
 
 
+    # ---------------------------------------------------
+    # ----------------- employees.csv.gz ----------------
+    # ---------------------------------------------------
+
+    time1 = datetime.datetime.now()
+    
+    print("======================= LOADING employees.csv")
+    path = os.path.join("Dataset","ERP", "employees.csv.gz")
+    emp = pd.read_csv(path)
+
+    print("================= CREATING DATAFRAME employee")
+    employee = pd.DataFrame()
+
+    print("====================== CLEANING employees.csv")
+    # emp_id
+    emp_id = emp['emp_id'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    employee['emp_id'] = ['E0'+i[1::] if len(i) == 5 else i if len(i) == 6 else None for i in emp_id]
+    # first_name
+    first_name = emp['first_name'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    employee['first_name'] = [ None if i in ('nan','na','n') else i for i in first_name]
+    # last_name
+    last_name = emp['last_name'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning(x)))
+    employee['last_name'] = [ None if i in ('nan','na','n') else i for i in last_name]
+    # role
+    role = emp['role'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning_s(x)))
+    employee['role'] = [ None if i in ('nan','na','n') else i for i in role]
+    # restaurant_id
+    rest_id = emp['restaurant_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning_s(x))))
+    rest = pd.read_pickle("./Layers/Silver/CRM/restaurant.pkl")
+    rest_id1 = set(rest['restaurant_id'])
+    employee['restaurant_id'] =  [ i if i in rest_id1 else None for i in rest_id]
+    # hire_date
+    hire_date = emp['hire_date'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning_m(x)))
+    employee['hire_date'] = [None if i in ('nan','na','n') else i for i in hire_date]
+    employee['hire_date'] = pd.to_datetime(employee['hire_date'], format = "%Y-%m-%d")
+    # salary
+    sly = emp['salary'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning_d(x)))
+    employee['salary'] = [None if i in ('nan','na','n','999') else float(i) for i in sly]
+
+    emply = employee.dropna(subset= 'emp_id').drop_duplicates(subset= 'emp_id').sort_values(by = 'emp_id').reset_index().drop('index',axis = 1)
+    emply.to_pickle(r"Layers/Silver/ERP/employee.pkl")
+
+    time2 = datetime.datetime.now()
+    time = time2 - time1
+    print("TABLE CLEANING TIME")
+    print(time)
 
 
+    # ---------------------------------------------------
+    # --------------- kitchen_logs.csv.gz ---------------
+    # ---------------------------------------------------
 
+    time1 = datetime.datetime.now()
+    
+    print("==================== LOADING kitchen_logs.csv")
+    path = os.path.join("Dataset","ERP", "kitchen_logs.csv.gz")
+    kic = pd.read_csv(path)
 
+    print("============== CREATING DATAFRAME kitchen_log")
+    kitchen_log = pd.DataFrame()
 
+    print("=================== CLEANING kitchen_logs.csv")
+    # kitchen_log_id
+    kit_id = kic['kitchen_log_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning(x))))
+    kitchen_log['kitchen_log_id'] = ['KL0'+i[2::] if len(i) == 9 else i if len(i) == 10 else None for i in kit_id]
+    # order_item_id
+    ord_itm_id = kic['order_item_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning(x))))
+    ord_itm_id1 = [ 'OI0'+i[2::] if len(i) == 8 else i if len(i) == 9 else None for i in ord_itm_id]
+    ord_itm = pd.read_pickle("./Layers/Silver/CRM/order_item.pkl")
+    ord_itm_id2 = set(ord_itm['order_item_id'])
+    kitchen_log['order_item_id'] = [i if i in ord_itm_id2 else None for i in ord_itm_id1]
+    # order_id
+    ord_id = kic['order_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning(x))))
+    ord_id1 = [ 'O0'+i[1::] if len(i) == 7 else i if len(i) == 8 else None for i in ord_id]
+    ordr = pd.read_pickle("./Layers/Silver/CRM/order.pkl")
+    ord_id2 = set(ordr['order_id'])
+    kitchen_log['order_id'] = [i if i in ord_id2 else None for i in ord_id1 ]
+    # item_id
+    item_id = kic['item_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning(x))))
+    item_id1 = ['M0'+i[1::] if len(i) == 4 else i if len(i) == 5 else None for i in item_id]
+    menu_itm = pd.read_pickle("./Layers/Silver/CRM/menu_item.pkl")
+    item_id2 = set(menu_itm['item_id'])
+    kitchen_log['item_id'] = [i if i in item_id2 else None for i in item_id1 ]
+    # started_at
+    start_at = kic['started_at'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning_sc(x)).replace('T',' '))
+    start_at2 = [i if len(i) == 19 else None for i in start_at]
+    kitchen_log['started_at'] = pd.to_datetime(start_at2, format = "%Y-%m-%d %H:%M:%S")
+    # completed_at
+    comple_at = kic['completed_at'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning_sc(x)).replace('T',' '))
+    comple_at2 = [i if len(i) == 19 else None for i in comple_at]
+    kitchen_log['completed_at'] = pd.to_datetime(comple_at2, format = "%Y-%m-%d %H:%M:%S")
 
+    kitchen_log['started_at'] = kitchen_log['started_at'].where(kitchen_log['started_at'] < kitchen_log['completed_at'],pd.NaT)
+    # chef_id
+    chef_id = kic['chef_id'].astype('str').apply(lambda x: m.letter_cleaning(m.word_cleaning(m.value_cleaning(x))))
+    chef_id1 = ['E0'+i[1::] if len(i) == 5 else i if len(i) == 6 else None for i in chef_id]
+    emp = pd.read_pickle("./Layers/Silver/ERP/employee.pkl")
+    chef_id2 = set(emp['emp_id'])
+    kitchen_log['chef_id'] = [ i if i in chef_id2 else None for i in chef_id1]
+    # stauts
+    status = kic['status'].astype('str').apply(lambda x: m.word_cleaning(m.value_cleaning_sc(x)))
+    kitchen_log['status'] = [i if i in ('Completed', 'Started', 'Cancelled') else None for i in status]
 
+    kit_log = kitchen_log.dropna(subset= 'kitchen_log_id').drop_duplicates(subset= 'kitchen_log_id').sort_values(by = 'kitchen_log_id').reset_index().drop('index', axis = 1)
+    kit_log.to_pickle(r"Layers/Silver/ERP/kitchen_log.pkl")
 
+    time2 = datetime.datetime.now()
+    time = time2 - time1
+    print("TABLE CLEANING TIME")
+    print(time)
+    print()
 
+    erp_time2 = datetime.datetime.now()
+    erp_time = erp_time2 - erp_time1
+    print("ERP TABLES CLEANING TIME")
+    print(erp_time)
+    print()
 
+    silver_time2 = datetime.datetime.now()
+    silver_time = silver_time2 - silver_time1
+    print("SILVER LAYER LOADING TIME")
+    print(silver_time)
+    print()
 
-
-
-
-
-
+    print('=============================================')
+    print('=========== SILVER LAYER COMPLETED ==========')
+    print('=============================================')  
+    print()
