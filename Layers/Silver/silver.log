@@ -1,115 +1,137 @@
-13:42:20 | INFO | =============================================
-13:42:20 | INFO | ================ SILVER LAYER ===============
-13:42:20 | INFO | =============================================
-13:42:20 | INFO | 
-13:42:20 | INFO | =============================================
-13:42:20 | INFO | ================= CRM TABLES ================
-13:42:20 | INFO | =============================================
-13:42:20 | INFO | =====
-13:42:20 | INFO | ===================== LOADING restaurants.csv
-13:42:20 | INFO | ==================== CLEANING restaurants.csv
-13:42:20 | INFO | ====================== SAVING restaurants.csv
-13:42:20 | INFO | ROWS & COLUMNS BEFORE CLEANING: 11 & 5
-13:42:20 | INFO | ROWS & COLUMNS AFTER CLEANING:  10 & 5
-13:42:20 | INFO | ROWS DROPPED: 1 (9.09%)
-13:42:20 | INFO | TABLE CLEANING TIME
-13:42:20 | INFO | 0:00:00.020288
-13:42:20 | INFO | =============== LOADING delivery_partners.csv
-13:42:20 | INFO | ============== CLEANING delivery_partners.csv
-13:42:20 | INFO | ================ SAVING delivery_partners.pkl
-13:42:20 | INFO | ROWS & COLUMNS BEFORE CLEANING: 201 & 4
-13:42:20 | INFO | ROWS & COLUMNS AFTER CLEANING:  192 & 4
-13:42:20 | INFO | ROWS DROPPED: 9 (4.48%)
-13:42:20 | INFO | TABLE CLEANING TIME
-13:42:20 | INFO | 0:00:00.013028
-13:42:20 | INFO | ======================= LOADING customers.csv
-13:42:21 | INFO | ====================== CLEANING customers.csv
-13:42:22 | INFO | ======================== SAVING customers.pkl
-13:42:22 | INFO | ROWS & COLUMNS BEFORE CLEANING: 100500 & 7
-13:42:22 | INFO | ROWS & COLUMNS AFTER CLEANING:  96627 & 6
-13:42:22 | INFO | ROWS DROPPED: 3873 (3.85%)
-13:42:22 | INFO | TABLE CLEANING TIME
-13:42:22 | INFO | 0:00:01.947669
-13:42:22 | INFO | ========================== LOADING orders.csv
-13:42:23 | INFO | ========================= CLEANING orders.csv
-13:42:33 | INFO | =========================== SAVING orders.pkl
-13:42:34 | INFO | ROWS & COLUMNS BEFORE CLEANING: 502500 & 9
-13:42:34 | INFO | ROWS & COLUMNS AFTER CLEANING:  480891 & 9
-13:42:34 | INFO | ROWS DROPPED: 21609 (4.3%)
-13:42:34 | INFO | TABLE CLEANING TIME
-13:42:34 | INFO | 0:00:11.629622
-13:42:34 | INFO | ====================== LOADING menu_items.csv
-13:42:34 | INFO | ===================== CLEANING menu_items.csv
-13:42:34 | INFO | ======================= SAVING menu_items.pkl
-13:42:34 | INFO | ROWS & COLUMNS BEFORE CLEANING: 502 & 5
-13:42:34 | INFO | ROWS & COLUMNS AFTER CLEANING:  483 & 5
-13:42:34 | INFO | ROWS DROPPED: 19 (3.78%)
-13:42:34 | INFO | TABLE CLEANING TIME
-13:42:34 | INFO | 0:00:00.011099
-13:42:34 | INFO | ===================== LOADING order_items.csv
-13:42:35 | INFO | ==================== CLEANING order_items.csv
-13:42:50 | INFO | ====================== SAVING order_items.pkl
-13:42:51 | INFO | ROWS & COLUMNS BEFORE CLEANING: 1003000 & 6
-13:42:51 | INFO | ROWS & COLUMNS AFTER CLEANING:  974318 & 6
-13:42:51 | INFO | ROWS DROPPED: 28682 (2.86%)
-13:42:51 | INFO | TABLE CLEANING TIME
-13:42:51 | INFO | 0:00:16.904722
-13:42:51 | INFO | 
-13:42:51 | INFO | CRM TABLES CLEANING TIME
-13:42:51 | INFO | 0:00:30.527022
-13:42:51 | INFO | 
-13:42:51 | INFO | =============================================
-13:42:51 | INFO | ================= ERP TABLES ================
-13:42:51 | INFO | =============================================
-13:42:51 | INFO | =====
-13:42:51 | INFO | ======================= LOADING suppliers.csv
-13:42:51 | INFO | ====================== CLEANING suppliers.csv
-13:42:51 | INFO | ======================== SAVING suppliers.pkl
-13:42:51 | INFO | ROWS & COLUMNS BEFORE CLEANING: 101 & 5
-13:42:51 | INFO | ROWS & COLUMNS AFTER CLEANING:  97 & 4
-13:42:51 | INFO | ROWS DROPPED: 4 (3.96%)
-13:42:51 | INFO | TABLE CLEANING TIME
-13:42:51 | INFO | 0:00:00.012054
-13:42:51 | INFO | ================== LOADING supplier_items.csv
-13:42:51 | INFO | ================= CLEANING supplier_items.csv
-13:42:51 | INFO | =================== SAVING supplier_items.pkl
-13:42:51 | INFO | ROWS & COLUMNS BEFORE CLEANING: 502 & 2
-13:42:51 | INFO | ROWS & COLUMNS AFTER CLEANING:  481 & 2
-13:42:51 | INFO | ROWS DROPPED: 21 (4.18%)
-13:42:51 | INFO | TABLE CLEANING TIME
-13:42:51 | INFO | 0:00:00.014355
-13:42:51 | INFO | ======================= LOADING inventory.csv
-13:42:51 | INFO | ====================== CLEANING inventory.csv
-13:42:51 | INFO | ======================== SAVING inventory.pkl
-13:42:51 | INFO | ROWS & COLUMNS BEFORE CLEANING: 5025 & 4
-13:42:51 | INFO | ROWS & COLUMNS AFTER CLEANING:  5025 & 4
-13:42:51 | INFO | ROWS DROPPED: 0 (0.0%)
-13:42:51 | INFO | TABLE CLEANING TIME
-13:42:51 | INFO | 0:00:00.049046
-13:42:51 | INFO | ======================= LOADING employees.csv
-13:42:51 | INFO | ====================== CLEANING employees.csv
-13:42:51 | INFO | ======================== SAVING employees.pkl
-13:42:51 | INFO | ROWS & COLUMNS BEFORE CLEANING: 502 & 7
-13:42:51 | INFO | ROWS & COLUMNS AFTER CLEANING:  483 & 7
-13:42:51 | INFO | ROWS DROPPED: 19 (3.78%)
-13:42:51 | INFO | TABLE CLEANING TIME
-13:42:51 | INFO | 0:00:00.014512
-13:42:51 | INFO | ==================== LOADING kitchen_logs.csv
-13:42:54 | INFO | =================== CLEANING kitchen_logs.csv
-13:43:13 | INFO | ============================ kitchen_logs.pkl
-13:43:14 | INFO | ROWS & COLUMNS BEFORE CLEANING: 1003000 & 8
-13:43:14 | INFO | ROWS & COLUMNS AFTER CLEANING:  965748 & 8
-13:43:14 | INFO | ROWS DROPPED: 37252 (3.71%)
-13:43:14 | INFO | TABLE CLEANING TIME
-13:43:14 | INFO | 0:00:22.973493
-13:43:14 | INFO | 
-13:43:14 | INFO | ERP TABLES CLEANING TIME
-13:43:14 | INFO | 0:00:23.063862
-13:43:14 | INFO | 
-13:43:14 | INFO | TOTAL SILVER LAYER TIME
-13:43:14 | INFO | 0:00:53.591541
-13:43:14 | INFO | 
-13:43:14 | INFO | =============================================
-13:43:14 | INFO | =========== SILVER LAYER COMPLETED ==========
-13:43:14 | INFO | =============================================
-13:43:14 | INFO | 
+10:06:53 | INFO | =============================================
+10:06:53 | INFO | ================ SILVER LAYER ===============
+10:06:53 | INFO | =============================================
+10:06:53 | INFO | 
+10:06:53 | INFO | =============================================
+10:06:53 | INFO | ================= ERP TABLES ================
+10:06:53 | INFO | =============================================
+10:06:53 | INFO | =====
+10:06:53 | INFO | ======================= LOADING suppliers.csv
+10:06:53 | INFO | ====================== CLEANING suppliers.csv
+10:06:53 | INFO | ======================== SAVING suppliers.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 100 & 5
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  100 & 5
+10:06:53 | INFO | ROWS DROPPED: 0 (0.0%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.030845
+10:06:53 | INFO | ===================== LOADING ingredients.csv
+10:06:53 | INFO | ==================== CLEANING ingredients.csv
+10:06:53 | INFO | ====================== SAVING ingredients.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 60 & 3
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  60 & 3
+10:06:53 | INFO | ROWS DROPPED: 0 (0.0%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.005538
+10:06:53 | INFO | ============ LOADING supplier_ingredients.csv
+10:06:53 | INFO | =========== CLEANING supplier_ingredients.csv
+10:06:53 | INFO | ============= SAVING supplier_ingredients.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 60 & 3
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  55 & 3
+10:06:53 | INFO | ROWS DROPPED: 5 (8.33%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.010448
+10:06:53 | INFO | ====================== LOADING menu_items.csv
+10:06:53 | INFO | ===================== CLEANING menu_items.csv
+10:06:53 | INFO | ======================= SAVING menu_items.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 301 & 5
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  299 & 5
+10:06:53 | INFO | ROWS DROPPED: 2 (0.66%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.007122
+10:06:53 | INFO | ========================== LOADING recipe.csv
+10:06:53 | INFO | ========================= CLEANING recipe.csv
+10:06:53 | INFO | =========================== SAVING recipe.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 1060 & 3
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  1026 & 3
+10:06:53 | INFO | ROWS DROPPED: 34 (3.21%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.024280
+10:06:53 | INFO | ===================== LOADING restaurants.csv
+10:06:53 | INFO | ==================== CLEANING restaurants.csv
+10:06:53 | INFO | ====================== SAVING restaurants.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 50 & 5
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  50 & 5
+10:06:53 | INFO | ROWS DROPPED: 0 (0.0%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.009688
+10:06:53 | INFO | ======================= LOADING inventory.csv
+10:06:53 | INFO | ====================== CLEANING inventory.csv
+10:06:53 | INFO | ======================== SAVING inventory.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 3015 & 5
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  2923 & 5
+10:06:53 | INFO | ROWS DROPPED: 92 (3.05%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.026184
+10:06:53 | INFO | =============== LOADING delivery_partners.csv
+10:06:53 | INFO | ============== CLEANING delivery_partners.csv
+10:06:53 | INFO | ================ SAVING delivery_partners.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 201 & 5
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  199 & 5
+10:06:53 | INFO | ROWS DROPPED: 2 (1.0%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.008009
+10:06:53 | INFO | ======================= LOADING employees.csv
+10:06:53 | INFO | ====================== CLEANING employees.csv
+10:06:53 | INFO | ======================== SAVING employees.csv
+10:06:53 | INFO | ROWS & COLUMNS BEFORE CLEANING: 571 & 5
+10:06:53 | INFO | ROWS & COLUMNS AFTER CLEANING:  547 & 5
+10:06:53 | INFO | ROWS DROPPED: 24 (4.2%)
+10:06:53 | INFO | TABLE CLEANING TIME
+10:06:53 | INFO | 0:00:00.010777
+10:06:53 | INFO | ERP TABLES CLEANING TIME
+10:06:53 | INFO | 0:00:00.133434
+10:06:53 | INFO | 
+10:06:53 | INFO | =============================================
+10:06:53 | INFO | ================= CRM TABLES ================
+10:06:53 | INFO | =============================================
+10:06:53 | INFO | =====
+10:06:53 | INFO | ======================= LOADING customers.csv
+10:06:54 | INFO | ====================== CLEANING customers.csv
+10:06:54 | INFO | ======================== SAVING customers.csv
+10:06:55 | INFO | ROWS & COLUMNS BEFORE CLEANING: 100500 & 5
+10:06:55 | INFO | ROWS & COLUMNS AFTER CLEANING:  99246 & 5
+10:06:55 | INFO | ROWS DROPPED: 1254 (1.25%)
+10:06:55 | INFO | TABLE CLEANING TIME
+10:06:55 | INFO | 0:00:01.065504
+10:06:55 | INFO | ========================== LOADING orders.csv
+10:06:55 | INFO | ========================= CLEANING orders.csv
+10:07:00 | INFO | =========================== SAVING orders.csv
+10:07:01 | INFO | ROWS & COLUMNS BEFORE CLEANING: 502500 & 8
+10:07:01 | INFO | ROWS & COLUMNS AFTER CLEANING:  481289 & 8
+10:07:01 | INFO | ROWS DROPPED: 21211 (4.22%)
+10:07:01 | INFO | TABLE CLEANING TIME
+10:07:01 | INFO | 0:00:06.972669
+10:07:01 | INFO | ================= LOADING customer_review.csv
+10:07:02 | INFO | ================ CLEANING customer_review.csv
+10:07:04 | INFO | ================== SAVING customer_review.csv
+10:07:04 | INFO | ROWS & COLUMNS BEFORE CLEANING: 175875 & 5
+10:07:04 | INFO | ROWS & COLUMNS AFTER CLEANING:  167889 & 4
+10:07:04 | INFO | ROWS DROPPED: 7986 (4.54%)
+10:07:04 | INFO | TABLE CLEANING TIME
+10:07:04 | INFO | 0:00:02.475733
+10:07:04 | INFO | ===================== LOADING order_items.csv
+10:07:06 | INFO | ==================== CLEANING order_items.csv
+10:07:20 | INFO | ====================== SAVING order_items.csv
+10:07:22 | INFO | ROWS & COLUMNS BEFORE CLEANING: 1508341 & 6
+10:07:22 | INFO | ROWS & COLUMNS AFTER CLEANING:  1351649 & 6
+10:07:22 | INFO | ROWS DROPPED: 156692 (10.39%)
+10:07:22 | INFO | TABLE CLEANING TIME
+10:07:22 | INFO | 0:00:17.847210
+10:07:22 | INFO | ==================== LOADING kitchen_logs.csv
+10:07:25 | INFO | =================== CLEANING kitchen_logs.csv
+10:07:37 | INFO | ===================== SAVING kitchen_logs.csv
+10:07:38 | INFO | ROWS & COLUMNS BEFORE CLEANING: 1508341 & 6
+10:07:38 | INFO | ROWS & COLUMNS AFTER CLEANING:  1302783 & 6
+10:07:38 | INFO | ROWS DROPPED: 205558 (13.63%)
+10:07:38 | INFO | TABLE CLEANING TIME
+10:07:38 | INFO | 0:00:16.400940
+10:07:38 | INFO | 
+10:07:38 | INFO | CRM TABLES CLEANING TIME
+10:07:38 | INFO | 0:00:44.762786
+10:07:38 | INFO | 
+10:07:38 | INFO | TOTAL SILVER LAYER TIME
+10:07:38 | INFO | 0:00:44.898980
+10:07:38 | INFO | 
+10:07:38 | INFO | =============================================
+10:07:38 | INFO | =========== SILVER LAYER COMPLETED ==========
+10:07:38 | INFO | =============================================
