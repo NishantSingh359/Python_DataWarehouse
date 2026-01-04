@@ -1,7 +1,3 @@
-import sys
-from pathlib import Path
-ROOT_DIR = Path(__file__).resolve().parents[1]
-sys.path.append(str(ROOT_DIR))
 
 import os
 import datetime
@@ -19,33 +15,33 @@ logging.basicConfig(
 
 if __name__ == "__main__":
 
-    logging.info('=============================================')
-    logging.info('================ SILVER LAYER ===============')
-    logging.info('=============================================')
-    logging.info('')
-
     silver_time1 = datetime.datetime.now()
+    logging.info(f"SILVER | LAYER_START")  
 
-    logging.info('=============================================')
-    logging.info('================= ERP TABLES ================')
-    logging.info('=============================================')
-    logging.info('=====')
+    # ===================================================
+    # ===================== CRM =========================
+    # ===================================================
 
+    logging.info("-" * 5)
     erp_time1 = datetime.datetime.now()
-    
+    logging.info(f"SILVER | ERP | DOMAIN_START")  
+
     # ---------------------------------------------------
-    # ---------------- restaurants.csv.gz ---------------
+    # ------------------- restaurants -------------------
     # --------------------------------------------------- 
 
     try:
-        time1 = datetime.datetime.now()
+                    
+        logging.info("-" * 21)
 
-        logging.info("======================= LOADING suppliers.csv")
+        time1 = datetime.datetime.now()
+        table = "suppliers"
+
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\suppliers.csv.gz"
         sup = pd.read_csv(path)
 
-        logging.info("====================== CLEANING suppliers.csv")
-
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
         supplier_id =   sup['supplier_id'].str.replace(r'\D', '', regex=True).replace({'':np.nan})
         supplier_id =   pd.to_numeric(supplier_id, errors= 'coerce').replace(0,np.nan).astype('Int16')
         supplier_id =   supplier_id.fillna(sup['supplier_name'].str.replace(r'\D', '', regex=True).replace({'':np.nan}))
@@ -68,23 +64,27 @@ if __name__ == "__main__":
             'phone':         phone,
             'email':         email
         })
-
         suppliers = suppliers.dropna(subset= 'supplier_id').drop_duplicates(subset= 'supplier_id').sort_values(by = 'supplier_id').reset_index().drop('index', axis = 1)
 
-        logging.info("======================== SAVING suppliers.csv")
+        before = sup.shape[0]
+        after = suppliers.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
+
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
         suppliers.to_pickle(r"Layers/silver/erp/suppliers.pkl")
 
-        before = sup.shape
-        after =  suppliers.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")        
+
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -99,18 +99,18 @@ if __name__ == "__main__":
 
     
     # ---------------------------------------------------
-    # ---------------- ingredients.csv.gz ---------------
+    # ------------------- ingredients -------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "ingredients"
 
-        logging.info("===================== LOADING ingredients.csv")
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\ingredients.csv.gz"
         ing = pd.read_csv(path)
 
-        logging.info("==================== CLEANING ingredients.csv")
-
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
         ingredient_id =   ing['ingredient_id'].str.replace(r'\D', '', regex=True).replace({'':np.nan})
         ingredient_id =   pd.to_numeric(ingredient_id, errors='coerce').replace(0,np.nan).astype('Int16')
         ingredient_id =   ingredient_id.fillna(ing['ingredient_name'].str.replace(r'\D', '', regex=True).replace({'':np.nan}))
@@ -122,28 +122,30 @@ if __name__ == "__main__":
         unit =            ing['unit'].astype(str).str.strip().str.lower().replace({'nan': np.nan})
 
         ingredients = pd.DataFrame({
-            'ingredient_id':   ingredient_id,
-            'ingredient_name': ingredient_name,
-            'unit':            unit
+            'ingredient_id':ingredient_id,
+            'ingredient_name':ingredient_name,
+            'unit':unit
         })
-
         ingredients = ingredients.dropna(subset= 'ingredient_id').drop_duplicates(subset= 'ingredient_id').sort_values(by = 'ingredient_id').reset_index().drop('index', axis = 1) 
         
+        before = ing.shape[0]
+        after = ingredients.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
 
-        logging.info("====================== SAVING ingredients.csv")
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
         ingredients.to_pickle(r"Layers/silver/erp/ingredients.pkl")
 
-        before = ing.shape
-        after =  ingredients.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")
+
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -158,18 +160,18 @@ if __name__ == "__main__":
 
 
     # ---------------------------------------------------
-    # ----------- supplier_ingredients.csv.gz -----------
+    # -------------- supplier_ingredients ---------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "supplier_ingredients"
 
-        logging.info("============ LOADING supplier_ingredients.csv")
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\supplier_ingredients.csv.gz"
         sup_ing = pd.read_csv(path)
 
-        logging.info("=========== CLEANING supplier_ingredients.csv")
-
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
         suppliers =     pd.read_pickle(r"./Layers/silver/erp/suppliers.pkl")
         supplier_id =   sup_ing['supplier_id'].str.replace(r'\D','',regex=True).replace({'':np.nan})
         supplier_id =   pd.to_numeric(supplier_id, errors='coerce').replace(0,np.nan).astype('Int16')
@@ -193,21 +195,25 @@ if __name__ == "__main__":
 
         supplier_ingredients = supplier_ingredients.dropna(subset= 'supplier_id').sort_values(by = 'supplier_id').reset_index().drop('index', axis = 1)
 
-        logging.info("============= SAVING supplier_ingredients.csv")
+        before = sup_ing.shape[0]
+        after = supplier_ingredients.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
+
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
         supplier_ingredients.to_pickle(r"Layers/silver/erp/supplier_ingredients.pkl")
 
-        before = sup_ing.shape
-        after =  supplier_ingredients.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")
 
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
+            
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
     except ValueError as e:
@@ -221,17 +227,18 @@ if __name__ == "__main__":
 
 
     # ---------------------------------------------------
-    # ----------------- menu_items.csv.gz ---------------
+    # -------------------- menu_items -------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "menu_items"
 
-        logging.info("====================== LOADING menu_items.csv")
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\menu_items.csv.gz"
         menu = pd.read_csv(path)
 
-        logging.info("===================== CLEANING menu_items.csv")
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
 
         item_id =    menu['item_id'].str.replace(r'\D', '', regex=True).replace({'':np.nan})
         item_id =    pd.to_numeric(item_id, errors='coerce').replace(0, np.nan).astype('Int16')
@@ -257,21 +264,25 @@ if __name__ == "__main__":
 
         menu_items = menu_items.dropna(subset= 'item_id').drop_duplicates(subset = 'item_id').sort_values( by = 'item_id').reset_index().drop('index', axis = 1)
 
-        logging.info("======================= SAVING menu_items.csv")
-        menu_items.to_pickle(r"Layers/silver/erp/menu_items.pkl")
+        before = menu.shape[0]
+        after = menu_items.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
 
-        before = menu.shape
-        after =  menu_items.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
+        menu_items.to_pickle(r"Layers/silver/erp/menu_items.pkl")
 
         time2 = datetime.datetime.now()
         time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
-
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")
+        
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
+            
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
     except ValueError as e:
@@ -285,17 +296,18 @@ if __name__ == "__main__":
 
 
     # ---------------------------------------------------
-    # ------------------- recipe.csv.gz -----------------
+    # ---------------------- recipe ---------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "recipe"
 
-        logging.info("========================== LOADING recipe.csv")
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\recipe.csv.gz"
         recp = pd.read_csv(path)
 
-        logging.info("========================= CLEANING recipe.csv")
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
 
         menu_items =        pd.read_pickle(r"./Layers/silver/erp/menu_items.pkl")
         item_id =           recp['item_id'].str.replace(r'\D','', regex=True).replace({'':np.nan})
@@ -313,27 +325,31 @@ if __name__ == "__main__":
         quantity_required = quantity_required.where(quantity_required > 0, np.nan)
 
         recipe = pd.DataFrame({
-            'item_id':           item_id,
-            'ingredient_id':     ingredient_id,
-            'quantity_required': quantity_required
+            'item_id':item_id,
+            'ingredient_id':ingredient_id,
+            'quantity_required':quantity_required
         })
 
         recipe = recipe.dropna(subset = 'item_id').sort_values(by = 'item_id').reset_index().drop('index', axis = 1)
 
-        logging.info("=========================== SAVING recipe.csv")
+        before = recp.shape[0]
+        after = recipe.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
+
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
         recipe.to_pickle(r"Layers/silver/erp/recipe.pkl")
 
-        before = recp.shape
-        after =  recipe.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")
+        
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -348,17 +364,18 @@ if __name__ == "__main__":
 
 
     # ---------------------------------------------------
-    # ---------------- restaurents.csv.gz ---------------
+    # ------------------- restaurents -------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "restaurants"
 
-        logging.info("===================== LOADING restaurants.csv")
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\restaurants.csv.gz"
         res = pd.read_csv(path)
 
-        logging.info("==================== CLEANING restaurants.csv")
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
 
         restaurant_id =   res['restaurant_id'].str.replace(r'\D','',regex=True).replace({'':np.nan})
         restaurant_id =   pd.to_numeric(restaurant_id, errors='coerce').replace(0,np.nan).astype('Int16')
@@ -373,29 +390,33 @@ if __name__ == "__main__":
         open_date =       pd.to_datetime(res['open_date'], format= '%Y-%m-%d %H:%M:%S', errors= 'coerce')
 
         restaurants = pd.DataFrame({
-            'restaurant_id':   restaurant_id,
-            'restaurant_name': restaurant_name,
-            'city':            city,
-            'restaurant_type': restaurant_type,
-            'open_date':       open_date
+            'restaurant_id':restaurant_id,
+            'restaurant_name':restaurant_name,
+            'city':city,
+            'restaurant_type':restaurant_type,
+            'open_date':open_date
         })
 
         restaurants = restaurants.drop_duplicates(subset= 'restaurant_id').sort_values(by = 'restaurant_id').reset_index().drop('index', axis = 1)
 
-        logging.info("====================== SAVING restaurants.csv")
+        before = res.shape[0]
+        after = restaurants.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
+
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
         restaurants.to_pickle(r"Layers/silver/erp/restaurants.pkl")
 
-        before = res.shape
-        after =  restaurants.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")
+        
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -410,17 +431,18 @@ if __name__ == "__main__":
 
 
     # ---------------------------------------------------
-    # ---------------- inventory.csv.gz -----------------
+    # -------------------- inventory --------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "inventory"
 
-        logging.info("======================= LOADING inventory.csv")
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\inventory.csv.gz"
         inv = pd.read_csv(path)
 
-        logging.info("====================== CLEANING inventory.csv")
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
 
         restaurants =     pd.read_pickle(r"./Layers/silver/erp/restaurants.pkl")
         restaurant_id =   inv['restaurant_id'].str.replace(r'\D', '', regex=True).replace({'':np.nan})
@@ -444,29 +466,33 @@ if __name__ == "__main__":
         last_updated_at = pd.to_datetime(last_updated_at, format= '%Y-%m-%d %H:%M:%S', errors= 'coerce')
 
         inventory = pd.DataFrame({
-            'restaurant_id':  restaurant_id,
-            'ingredient_id':  ingredient_id,
-            'stock_qty':      stock_qty,
-            'reorder_level':  reorder_level,
+            'restaurant_id':restaurant_id,
+            'ingredient_id':ingredient_id,
+            'stock_qty':stock_qty,
+            'reorder_level':reorder_level,
             'last_updated_at':last_updated_at
         })
 
         inventory = inventory.dropna(subset= 'restaurant_id').sort_values(by = 'restaurant_id').reset_index().drop('index', axis = 1)
 
-        logging.info("======================== SAVING inventory.csv")
+        before = inv.shape[0]
+        after = inventory.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
+
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
         inventory.to_pickle(r"Layers/silver/erp/inventory.pkl")
 
-        before = inv.shape
-        after =  inventory.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")
+        
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -481,17 +507,18 @@ if __name__ == "__main__":
 
     
     # ---------------------------------------------------
-    # ------------ delivery_partners.csv.gz -------------
+    # ---------------- delivery_partners ----------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "delivery_partners"
 
-        logging.info("=============== LOADING delivery_partners.csv")
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\delivery_partners.csv.gz"
         del_part = pd.read_csv(path)
 
-        logging.info("============== CLEANING delivery_partners.csv")
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
 
         partner_id =   del_part['delivery_partner_id'].str.replace(r'\D', '', regex=True).replace({'':np.nan})
         partner_id =   pd.to_numeric(partner_id, errors='coerce').replace(0, np.nan).astype('Int16')
@@ -510,29 +537,33 @@ if __name__ == "__main__":
 
         delivery_partners = pd.DataFrame({
             'delivery_partner_id':partner_id,
-            'name':               name,
-            'partner_type':       partner_type,
-            'vehicle_type':       vehicle_type,
-            'phone':              phone
+            'name':name,
+            'partner_type':partner_type,
+            'vehicle_type':vehicle_type,
+            'phone':phone
         })
 
         delivery_partners = delivery_partners.drop_duplicates(subset= 'delivery_partner_id').sort_values(by = 'delivery_partner_id').reset_index().drop('index', axis = 1)
 
-        logging.info("================ SAVING delivery_partners.csv")
+        before = del_part.shape[0]
+        after = delivery_partners.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
+
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
         delivery_partners.to_pickle(r"Layers/silver/erp/delivery_partners.pkl")
 
-        before = del_part.shape
-        after =  delivery_partners.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
-
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")
+        
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
+            
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
     except ValueError as e:
@@ -546,17 +577,18 @@ if __name__ == "__main__":
 
 
     # ---------------------------------------------------
-    # ------------------ employees.csv.gz ------------------
+    # -------------------- employees --------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "employees"
 
-        logging.info("======================= LOADING employees.csv")
+        logging.info(f"SILVER | ERP | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\erp\employees.csv.gz"
         emp = pd.read_csv(path)
 
-        logging.info("====================== CLEANING employees.csv")
+        logging.info(f"SILVER | ERP | CLEAN | {table} | started")
 
         emp_id =        emp['emp_id'].str.replace(r'\D', '', regex=True).astype('Int16')
         emp_id =        ('E' + emp_id.astype(str).str.zfill(5)).where(emp_id.notnull() == True, np.nan) 
@@ -584,20 +616,24 @@ if __name__ == "__main__":
 
         employees = employees.dropna(subset= 'emp_id').drop_duplicates(subset= 'emp_id').sort_values(by = 'emp_id').reset_index().drop('index', axis = 1)
 
-        logging.info("======================== SAVING employees.csv")
-        employees.to_pickle(r"Layers/silver/erp/employess.pkl")
+        before = emp.shape[0]
+        after = employees.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | ERP | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
 
-        before = emp.shape
-        after =  employees.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
+        logging.info(f"SILVER | ERP | SAVE | {table} | target=pickle")
+        employees.to_pickle(r"Layers/silver/erp/employees.pkl")
 
         time2 = datetime.datetime.now()
         time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | ERP | TIME | {table} | duration_sec={time}")
+        
+        if drop_pct > 5:
+            logging.warning(f"SILVER | ERP | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -611,31 +647,36 @@ if __name__ == "__main__":
         logging.error(f"NameError: {e}")
 
     erp_time2 = datetime.datetime.now()
-    erp_time =  erp_time2 - erp_time1
-    logging.info("ERP TABLES CLEANING TIME")
-    logging.info(erp_time)   
-    logging.info('')
+    erp_time = erp_time2 - erp_time1
+    erp_time = round(erp_time.total_seconds(), 4)
+    logging.info(f"SILVER | ERP | DOMAIN_END | duration_sec={erp_time}") 
 
 
-    logging.info('=============================================')
-    logging.info('================= CRM TABLES ================')
-    logging.info('=============================================')
-    logging.info('=====')
 
+    # ===================================================
+    # ===================== CRM =========================
+    # ===================================================
+
+    logging.info("-" * 5)
     crm_time1 = datetime.datetime.now()
+    logging.info(f"SILVER | CRM | DOMAIN_START")
 
     # ---------------------------------------------------
-    # ----------------- customers.csv.gz ----------------
+    # -------------------- customers --------------------
     # --------------------------------------------------- 
 
     try:
-        time1 = datetime.datetime.now()
+                    
+        logging.info("-" * 21)
 
-        logging.info("======================= LOADING customers.csv")
+        time1 = datetime.datetime.now()
+        table = "customers"
+
+        logging.info(f"SILVER | CRM | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\crm\customers.csv.gz"
         cust = pd.read_csv(path)
 
-        logging.info("====================== CLEANING customers.csv")
+        logging.info(f"SILVER | CRM | CLEAN | {table} | started")
 
         customer_id =   cust['customer_id'].str.replace(r'\D','', regex=True).replace({'':np.nan})
         customer_id =   customer_id.fillna(cust['customer_name'].str.replace(r'\D','',regex=True).replace({'':np.nan}))
@@ -662,21 +703,25 @@ if __name__ == "__main__":
 
         customers = customers.dropna(subset= 'customer_id').drop_duplicates(subset= 'customer_id').sort_values(by = 'customer_id').reset_index().drop('index', axis=1)
 
-        logging.info("======================== SAVING customers.csv")
-        customers.to_pickle(r"Layers/silver/crm/customers.pkl")
+        before = cust.shape[0]
+        after = customers.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | CRM | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
 
-        before = cust.shape
-        after =  customers.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
+        logging.info(f"SILVER | CRM | SAVE | {table} | target=pickle")
+        customers.to_pickle(r"Layers/silver/crm/customers.pkl")
 
         time2 = datetime.datetime.now()
         time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | CRM | TIME | {table} | duration_sec={time}")
 
+        if drop_pct > 5:
+            logging.warning(f"SILVER | CRM | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
+            
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
     except ValueError as e:
@@ -690,17 +735,18 @@ if __name__ == "__main__":
 
 
     # ---------------------------------------------------
-    # ------------------- orders.csv.gz -----------------
+    # ---------------------- orders ---------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "orders"
 
-        logging.info("========================== LOADING orders.csv")
+        logging.info(f"SILVER | CRM | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\crm\orders.csv.gz"
         orde = pd.read_csv(path)
 
-        logging.info("========================= CLEANING orders.csv")
+        logging.info(f"SILVER | CRM | CLEAN | {table} | started")
 
         order_id =       orde['order_id'].str.replace(r'\D', '', regex=True).replace({'':np.nan}).astype('Int32')
         order_id =       ('O' + order_id.astype(str).str.zfill(7)).where(order_id.notnull(), np.nan) 
@@ -741,20 +787,24 @@ if __name__ == "__main__":
 
         orders = orders.dropna(subset='order_id').drop_duplicates(subset='order_id').sort_values(by='order_id').reset_index().drop('index', axis=1)
 
-        logging.info("=========================== SAVING orders.csv")
-        orders.to_pickle(r"Layers/silver/crm/orders.pkl")
+        before = orde.shape[0]
+        after = orders.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | CRM | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
 
-        before = orde.shape
-        after =  orders.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
+        logging.info(f"SILVER | CRM | SAVE | {table} | target=pickle")
+        orders.to_pickle(r"Layers/silver/crm/orders.pkl")
 
         time2 = datetime.datetime.now()
         time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | CRM | TIME | {table} | duration_sec={time}")
+            
+        if drop_pct > 5:
+            logging.warning(f"SILVER | CRM | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -768,17 +818,18 @@ if __name__ == "__main__":
         logging.error(f"NameError: {e}")
 
     # ---------------------------------------------------
-    # ------------------- review.csv.gz -----------------
+    # ---------------------- review ---------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "review"
 
-        logging.info("================= LOADING customer_review.csv")
+        logging.info(f"SILVER | CRM | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\crm\customer_reviews.csv.gz"
         rev = pd.read_csv(path)
 
-        logging.info("================ CLEANING customer_review.csv")
+        logging.info(f"SILVER | CRM | CLEAN | {table} | started")
 
         orders =      pd.read_pickle(r"./Layers/silver/crm/orders.pkl")
         order_id =    rev['order_id'].str.replace(r'\D','',regex=True).replace({'':np.nan})
@@ -804,20 +855,24 @@ if __name__ == "__main__":
 
         review = review.dropna(subset='review_id').drop_duplicates(subset='review_id').sort_values(by='review_id').reset_index().drop('index', axis=1)
 
-        logging.info("================== SAVING customer_review.csv")
-        review.to_pickle(r"Layers/silver/crm/customer_review.pkl")
+        before = rev.shape[0]
+        after = review.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | CRM | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
 
-        before = rev.shape
-        after =  review.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
+        logging.info(f"SILVER | CRM | SAVE | {table} | target=pickle")
+        review.to_pickle(r"Layers/silver/crm/review.pkl")
 
         time2 = datetime.datetime.now()
         time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | CRM | TIME | {table} | duration_sec={time}")
+            
+        if drop_pct > 5:
+            logging.warning(f"SILVER | CRM | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -832,17 +887,18 @@ if __name__ == "__main__":
 
 
     # ---------------------------------------------------
-    # ---------------- order_items.csv.gz ---------------
+    # ------------------- order_items -------------------
     # --------------------------------------------------- 
 
     try:
         time1 = datetime.datetime.now()
+        table = "order_items"
 
-        logging.info("===================== LOADING order_items.csv")
+        logging.info(f"SILVER | CRM | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\crm\order_items.csv.gz"
         ord_itm = pd.read_csv(path)
 
-        logging.info("==================== CLEANING order_items.csv")
+        logging.info(f"SILVER | CRM | CLEAN | {table} | started")
 
         order_item_id = ord_itm['order_item_id'].str.replace(r'\D','', regex=True).replace({'':np.nan,'nan':np.nan})
         order_item_id = ('OI'+order_item_id.astype('Int32').astype(str).str.zfill(8)).where(order_item_id.notnull() == True, np.nan)
@@ -903,20 +959,24 @@ if __name__ == "__main__":
         order_items = order_items.dropna(subset = 'order_id')
         order_items = order_items.dropna(subset='order_item_id').drop_duplicates(subset='order_item_id').sort_values(by='order_item_id').reset_index(drop=True)
 
-        logging.info("====================== SAVING order_items.csv")
+        before = ord_itm.shape[0]
+        after = order_items.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | CRM | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
+
+        logging.info(f"SILVER | CRM | SAVE | {table} | target=pickle")
         order_items.to_pickle(r"Layers/silver/crm/order_items.pkl")
 
-        before = ord_itm.shape
-        after =  order_items.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | CRM | TIME | {table} | duration_sec={time}")
+          
+        if drop_pct > 5:
+            logging.warning(f"SILVER | CRM | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -936,12 +996,13 @@ if __name__ == "__main__":
 
     try:
         time1 = datetime.datetime.now()
+        table = "kitchen_logs"
 
-        logging.info("==================== LOADING kitchen_logs.csv")
+        logging.info(f"SILVER | CRM | LOAD | {table}")
         path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\dataset\crm\kitchen_logs.csv.gz"
         kic = pd.read_csv(path)
 
-        logging.info("=================== CLEANING kitchen_logs.csv")
+        logging.info(f"SILVER | CRM | CLEAN | {table} | started")
 
         order_item =     pd.read_pickle(r"./Layers/silver/crm/order_items.pkl")
         order_item_id =  kic['order_item_id'].str.replace(r'\D','',regex=True).replace({'':np.nan,'nan':np.nan})
@@ -949,7 +1010,7 @@ if __name__ == "__main__":
         order_item_id =  ('OI'+order_item_id.astype(str).str.zfill(8)).where(order_item_id.notnull(),np.nan)
         order_item_id =  order_item_id.where(order_item_id.isin(order_item['order_item_id']), np.nan)
 
-        emp =            pd.read_pickle(r"./Layers/silver/erp/employess.pkl")
+        emp =            pd.read_pickle(r"./Layers/silver/erp/employees.pkl")
         chef =           emp[emp['role'] == 'chef']['emp_id']
         chef_id =        kic['chef_id'].str.replace(r'\D','',regex=True).replace({'':np.nan,'nan':np.nan})
         chef_id =        pd.to_numeric(chef_id, errors= 'coerce').astype('Int64')
@@ -975,21 +1036,24 @@ if __name__ == "__main__":
         kitchen_logs  = kitchen_logs.dropna(subset='order_item_id').drop_duplicates(subset='order_item_id').sort_values(by='order_item_id').reset_index(drop=True)
         kitchen_logs.insert(0,'kitchen_log_id','K'+(kitchen_logs.index+1).astype(str).str.zfill(8))
 
-        logging.info("===================== SAVING kitchen_logs.csv")
+        before = kic.shape[0]
+        after = kitchen_logs.shape[0]
+        drop = before-after
+        drop_pct = round((before - after) / before * 100, 2)
+        logging.info(f"SILVER | CRM | CLEAN | {table} | rows_before={before} rows_after={after} dropped={drop} pct={drop_pct}")
+
+        logging.info(f"SILVER | CRM | SAVE | {table} | target=pickle")
         kitchen_logs.to_pickle(r"Layers/silver/crm/kitchen_logs.pkl")
 
-        before = kic.shape
-        after =  kitchen_logs.shape
-        logging.info(f"ROWS & COLUMNS BEFORE CLEANING: {before[0]} & {before[1]}")
-        logging.info(f"ROWS & COLUMNS AFTER CLEANING:  {after[0]} & {after[1]}")
-        drop_pct = round((before[0] - after[0]) / before[0] * 100, 2)
-        logging.info(f"ROWS DROPPED: {before[0]-after[0]} ({drop_pct}%)")   
-
         time2 = datetime.datetime.now()
-        time =  time2 - time1
-        logging.info("TABLE CLEANING TIME")
-        logging.info(time)
-        logging.info('')
+        time = time2 - time1
+        time = round(time.total_seconds(), 4)
+        logging.info(f"SILVER | CRM | TIME | {table} | duration_sec={time}")
+
+        if drop_pct > 5:
+            logging.warning(f"SILVER | CRM | DQ | {table} | dropped_pct={drop_pct} threshold=5")
+            
+        logging.info("-" * 21)
 
     except FileNotFoundError as e:
         logging.error(f"FileNotFoundError: {e}")
@@ -1003,17 +1067,12 @@ if __name__ == "__main__":
         logging.error(f"NameError: {e}")
 
     crm_time2 = datetime.datetime.now()
-    erp_time = crm_time2 - crm_time1
-    logging.info("CRM TABLES CLEANING TIME")
-    logging.info(erp_time)
-    logging.info('')
-   
+    crm_time = crm_time2 - crm_time1
+    crm_time = round(crm_time.total_seconds(), 4)
+    logging.info(f"SILVER | CRM | DOMAIN_END | duration_sec={crm_time}")
+    logging.info("-" * 5)
+    
     silver_time2 = datetime.datetime.now()
     silver_time = silver_time2 - silver_time1
-    logging.info("TOTAL SILVER LAYER TIME")
-    logging.info(silver_time)
-    logging.info('')
-
-    logging.info('=============================================')
-    logging.info('=========== SILVER LAYER COMPLETED ==========')
-    logging.info('=============================================')  
+    silver_time = round(silver_time.total_seconds(), 4)
+    logging.info(f"SILVER | LAYER_END | duration_sec={silver_time}")

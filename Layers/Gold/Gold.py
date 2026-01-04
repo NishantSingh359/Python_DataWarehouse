@@ -85,7 +85,7 @@ if __name__ == "__main__":
     try:
         time1 = datetime.datetime.now()
 
-        logging.info("=============== CREATING dim_order_status.pkl")
+        logging.info("=============== CREATING dim_payment_mode.pkl")
 
         payment_key = [1,2,3,4]
         payment_mode = ['wallet', 'upi', 'cash', 'card']
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         time1 = datetime.datetime.now()
 
         logging.info("===================== LOADING restaurants.pkl")
-        path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\erp\restaurants.pkl"
+        path = r"Layers/silver/erp/restaurants.pkl"
         res = pd.read_pickle(path)
 
         logging.info("================= CREATING dim_restaurant.pkl")
@@ -214,7 +214,7 @@ if __name__ == "__main__":
         time1 = datetime.datetime.now()
 
         logging.info("=================== LOADING dim_employees.pkl")
-        path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\erp\employess.pkl"
+        path = r"Layers/silver/erp/employe.pkl"
         emp = pd.read_pickle(path)
 
         logging.info("================== CREATING dim_employees.pkl")
@@ -261,7 +261,7 @@ if __name__ == "__main__":
         time1 = datetime.datetime.now()
 
         logging.info("======================= LOADING customers.pkl")
-        path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\crm\customers.pkl"
+        path = r"Layers/silver/erp/customers.pkl"
         cust = pd.read_pickle(path)
 
         logging.info("=================== CREATING dim_customer.pkl")
@@ -309,27 +309,27 @@ if __name__ == "__main__":
     try:
         time1 = datetime.datetime.now()
 
-        logging.info("=================== LOADING dim_employess.pkl")
-        path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\erp\employess.pkl"
+        logging.info("=================== LOADING dim_employees.pkl")
+        path = r"Layers/silver/erp/employees.pkl"
         emp = pd.read_pickle(path)
 
-        logging.info("================== CREATING dim_employess.pkl")
+        logging.info("================== CREATING dim_employees.pkl")
         emp['emp_key'] = emp.index + 1
 
         emp_key = emp['emp_key']
         emp_id = emp['emp_id']
         role = emp['role']
 
-        dim_customer = pd.DataFrame({
+        dim_employees = pd.DataFrame({
             'emp_key':emp_key,
             'emp_id':emp_id,
             'role':role,
         })
 
-        logging.info("==================== SAVING dim_employess.pkl")
-        dim_customer.to_pickle(r"Layers/gold/dim_employess.pkl")
+        logging.info("==================== SAVING dim_employees.pkl")
+        dim_employees.to_pickle(r"Layers/gold/dim_employees.pkl")
 
-        before = dim_customer.shape
+        before = dim_employees.shape
         logging.info(f"TABLE ROWS & COLUMNS: {before[0]} & {before[1]}")
 
         time2 = datetime.datetime.now()
@@ -357,7 +357,7 @@ if __name__ == "__main__":
         time1 = datetime.datetime.now()
 
         logging.info("====================== LOADING menu_items.pkl")
-        path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\erp\menu_items.pkl"
+        path = r"Layers/silver/erp/menu_items.pkl"
         menu = pd.read_pickle(path)
 
         logging.info("================== CREATING dim_menu_item.pkl")
@@ -408,7 +408,7 @@ if __name__ == "__main__":
         time1 = datetime.datetime.now()
 
         logging.info("=============== LOADING delivery_partners.pkl")
-        path = r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\erp\delivery_partners.pkl"
+        path = r"Layers/silver/erp/delivery_partners.pkl"
         del_part = pd.read_pickle(path)
 
         logging.info("=========== CREATING dim_delivery_partner.pkl")
@@ -468,11 +468,17 @@ if __name__ == "__main__":
     try:
 
         logging.info("LOAD & JOIN kitchen_logs, order_items, orders")
-        kic = pd.read_pickle(r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\crm\kitchen_logs.pkl")
-        ord_itm = pd.read_pickle(r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\crm\order_items.pkl")
-        order = pd.read_pickle(r"C:\Users\TUF\OneDrive\Documents\Code\Vs Code\Python_DataWarehouse\Layers\silver\crm\orders.pkl")
+        
+        kic_path = r"Layers/silver/crm/kitchen_logs.pkl"
+        ord_itm_path = r"Layers/silver/crm/order_items.pkl"
+        ordr_path = r"Layers/silver/crm/orders.pkl"
+
+        kic = pd.read_pickle(kic_path)
+        ord_itm = pd.read_pickle(ord_itm_path)
+        ordr = pd.read_pickle(ordr_path)
+
         fact_sales = kic.merge(ord_itm, on='order_item_id', how='left')
-        fact_sales = fact_sales.merge(order, on='order_id', how='left')
+        fact_sales = fact_sales.merge(ordr, on='order_id', how='left')
 
         logging.info("=========== LOAD & JOIN dim_payment_modes.pkl")
         pay_mode = pd.read_pickle("Layers/gold/dim_payment_mode.pkl")
