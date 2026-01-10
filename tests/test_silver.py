@@ -596,7 +596,85 @@ def test_run():
             f"error_type={type(e).__name__} message={e}"
         )
 
+    # ---------------------------------------------------
+    # --------------- delivery_partners -----------------
+    # --------------------------------------------------- 
 
+    try:
+        logging.info("-" * 21)
+
+        table = "delivery_partners"
+        issues = []
+
+        step = "LOAD"
+        logging.info(f"{layer} | {domain} | {step}    | {table}")
+        del_part = pd.read_parquet(SILVER_DIR / "erp" / "delivery_partners.parquet")
+
+        step = "QUALITY"
+
+        # ----------- delivery_partner_id
+        column = "delivery_partner_id"
+        ptnr_id = del_part['delivery_partner_id'].str.match(r'^D\d{4}$').sum()
+        null = del_part['delivery_partner_id'].isnull().sum()
+        dup = del_part['delivery_partner_id'].duplicated().sum()
+
+        check = 0
+        if ptnr_id != del_part.shape[0]:
+            issues.append(f"{column} | invalid_format")
+            check = check + 1
+        if null > 0:
+            issues.append(f"{column} | null_values") 
+            check = check + 1
+        if dup > 0:
+            issues.append(f"{column} | duplicate_values")
+            check = check + 1
+        if check == 0:
+            issues.append(f"{column} | pass")
+
+        # ----------- delivery_partner_name
+        column = "name"
+        name = del_part['name'].str.match(r'^Rider_([1-9][0-9]{0,2}|1000)$').sum()
+
+        if name != del_part.shape[0]:
+            issues.append(f"{column} | invalid_format")
+        else:
+            issues.append(f"{column} | pass")
+
+        # ----------- partner_type
+        column = "partner_type"
+        valid_partner = {'third_party', 'in_house', None}
+        valid_partner = del_part['partner_type'].isin(valid_partner).sum()
+
+        if valid_partner != del_part.shape[0]:
+            issues.append(f"{column} | invalid")
+        else:
+            issues.append(f"{column} | pass")
+
+        # ----------- vehicle_type
+        column = "vechicle_type"
+        valid_vehicle = {'scooter', 'bike', None}
+        valid_vehicle = del_part['vehicle_type'].isin(valid_vehicle).sum()
+
+        if valid_vehicle != del_part.shape[0]:
+            issues.append(f"{column} | invalid")
+        else:
+            issues.append(f"{column} | pass")
+
+        # ----------- phone
+        column = "phone"
+        phone = del_part['phone'][del_part['phone'].notna()]
+        phone_num = phone.str.match(r'^\+91\d{10}$').sum()
+
+        if phone_num != phone.shape[0]:
+            issues.append(f"{column} | invalid")
+        else:
+            issues.append(f"{column} | pass")
+
+        for issue in issues:
+            if " pass" in issue.split("|"):
+                logging.info(f"{layer} | {domain} | {step} | {table} | {issue}")
+            else:
+                logging.warning(f"{layer} | {domain} | {step} | {table} | {issue}")
 
     except Exception as e:
         logging.exception(
