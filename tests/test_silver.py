@@ -497,7 +497,112 @@ def test_run():
             f"error_type={type(e).__name__} message={e}"
         )
 
+    # ---------------------------------------------------
+    # ------------------- inventory ---------------------
+    # --------------------------------------------------- 
 
+    try:
+        logging.info("-" * 21)
+
+        table = "inventory"
+        issues = []
+
+        step = "LOAD"
+        logging.info(f"{layer} | {domain} | {step}    | {table}")
+        inv = pd.read_parquet(SILVER_DIR / "erp" / "inventory.parquet")
+
+        step = "QUALITY"
+
+        # --------- restaurant_id
+        column = "restaurant_id"
+        inv_fmt = inv['restaurant_id'].str.match(r'^R\d{3}$').sum()
+        null = inv['restaurant_id'][inv['restaurant_id'].isnull()].sum()
+        res = pd.read_parquet(SILVER_DIR / "erp" /"restaurants.parquet")
+        inv_id = inv['restaurant_id'].isin(res['restaurant_id']).sum()
+
+        check = 0
+        if inv_fmt != inv.shape[0]:
+            issues.append(f"{column} | invalid_format")
+            check = check + 1
+        if null != 0:
+            issues.append(f"{column} | null_values")
+            check = check + 1
+        if inv_id != inv.shape[0]:
+            issues.append(f"{column} | invalid")
+            check = check + 1
+        if check == 0:
+            issues.append(f"{column} | pass")
+
+        # --------- ingredient_id
+        column = "ingredient_id"
+
+        ing_id = inv['ingredient_id'][inv['ingredient_id'].notna()]
+        inv_fmt = ing_id.str.match(r'^ING\d{3}$').sum()
+
+        ing = pd.read_parquet(SILVER_DIR / "erp" / "ingredients.parquet")
+        inv_id = ing_id.isin(ing['ingredient_id']).sum()
+
+        check = 0
+        if inv_fmt != ing_id.shape[0]:
+            issues.append(f"{column} | invalid_format")
+            check = check + 1
+        if inv_id != ing_id.shape[0]:
+            issues.append(f"{column} | invalid")
+            check = check + 1
+        if check == 0:
+            issues.append(f"{column} | pass")
+
+        # --------- stock_qty
+        column = "stock_qty"
+        stock_qty = inv['stock_qty'][inv['stock_qty'].notna()]
+        qty = stock_qty[(stock_qty >0) & (stock_qty <1000)].count()
+
+        if qty != stock_qty.shape[0]:
+            issues.append(f"{column} | invalid")
+        else:
+            issues.append(f"{column} | pass")
+
+        # --------- reorder_level
+        column = "reorder_level"
+        reo_lvl = inv['reorder_level'][inv['reorder_level'].notna()]
+        lvl = reo_lvl[(reo_lvl >0) & (reo_lvl <1000)].count()
+
+        if lvl != reo_lvl.shape[0]:
+            issues.append(f"{column} | invalid")
+        else:
+            issues.append(f"{column} | pass")
+            
+        # --------- last_updated_at
+        column = "last_order_date"
+        updated_at = inv['last_updated_at'][inv['last_updated_at'].notna()]
+        min_date = datetime.datetime(2023,1,1)
+        max_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        l_updated_at = updated_at[(updated_at > min_date) & (updated_at < max_date)].count()
+
+        if l_updated_at != updated_at.shape[0]:
+            issues.append(f"{column} | invalid")
+        else:
+            issues.append(f"{column} | pass")
+
+        for issue in issues:
+            if " pass" in issue.split("|"):
+                logging.info(f"{layer} | {domain} | {step} | {table} | {issue}")
+            else:
+                logging.warning(f"{layer} | {domain} | {step} | {table} | {issue}")
+
+    except Exception as e:
+        logging.exception(
+            f"{layer} | {domain} | {step} | {table} | {column} | "
+            f"error_type={type(e).__name__} message={e}"
+        )
+
+
+
+    except Exception as e:
+        logging.exception(
+            f"{layer} | {domain} | {step} | {table} | {column} | "
+            f"error_type={type(e).__name__} message={e}"
+        )
 
 if __name__ == "__main__":
     test_run()
